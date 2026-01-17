@@ -21,20 +21,7 @@ export const Hero = () => {
         <div className="w-full h-full grayscale contrast-125 brightness-75">
             {/* Using a dark, industrial coffee texture */}
            <img 
-            src="<div className="relative">
-  <img 
-    src="https://images.pexels.com/photos/17680003/pexels-photo-17680003.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200" 
-    alt="A barista operates machinery at Starbucks Reserve Roastery, showcasing the coffee production process."
-    width="6000"
-    height="4000"
-    className="w-full h-full object-cover"
-  />
-  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent p-2">
-    <a href="https://www.pexels.com/photo/a-worker-operating-a-laptop-17680003/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-slate-300 transition-colors">
-      Photo by Declan Sun on Pexels
-    </a>
-  </div>
-</div>" 
+            src="https://images.pexels.com/photos/17680003/pexels-photo-17680003.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200" 
             alt="Roastery Interior" 
             className="w-full h-full object-cover"
            />
