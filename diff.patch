@@ -1,0 +1,669 @@
+diff --git a/src/App.tsx b/src/App.tsx
+index 3d7ded3..2b7ed7e 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,35 +1,18 @@
+-import { useState } from 'react'
+-import reactLogo from './assets/react.svg'
+-import viteLogo from '/vite.svg'
+-import './App.css'
++import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
++import Index from './pages/Index';
++import { GlyphorBadge } from './components/GlyphorBadge';
+ 
+ function App() {
+-  const [count, setCount] = useState(0)
+-
+   return (
+-    <>
+-      <div>
+-        <a href="https://vite.dev" target="_blank">
+-          <img src={viteLogo} className="logo" alt="Vite logo" />
+-        </a>
+-        <a href="https://react.dev" target="_blank">
+-          <img src={reactLogo} className="logo react" alt="React logo" />
+-        </a>
+-      </div>
+-      <h1>Vite + React</h1>
+-      <div className="card">
+-        <button onClick={() => setCount((count) => count + 1)}>
+-          count is {count}
+-        </button>
+-        <p>
+-          Edit <code>src/App.tsx</code> and save to test HMR
+-        </p>
++    <Router>
++      <div className="bg-zinc-950 min-h-screen text-zinc-50 selection:bg-slate-50 selection:text-zinc-950">
++        <Routes>
++          <Route path="/" element={<Index />} />
++        </Routes>
++        <GlyphorBadge />
+       </div>
+-      <p className="read-the-docs">
+-        Click on the Vite and React logos to learn more
+-      </p>
+-    </>
+-  )
++    </Router>
++  );
+ }
+ 
+-export default App
++export default App;
+\ No newline at end of file
+diff --git a/src/components/GlyphorBadge.tsx b/src/components/GlyphorBadge.tsx
+new file mode 100644
+index 0000000..c4e6c37
+--- /dev/null
++++ b/src/components/GlyphorBadge.tsx
+@@ -0,0 +1,42 @@
++import { useState, useEffect } from 'react';
++import { X } from 'lucide-react';
++import { motion, AnimatePresence } from 'framer-motion';
++
++export const GlyphorBadge = () => {
++  const [isVisible, setIsVisible] = useState(false);
++
++  useEffect(() => {
++    const hidden = localStorage.getItem('glyphor-badge-hidden');
++    if (!hidden) setIsVisible(true);
++  }, []);
++
++  const handleClose = () => {
++    setIsVisible(false);
++    localStorage.setItem('glyphor-badge-hidden', 'true');
++  };
++
++  return (
++    <AnimatePresence>
++      {isVisible && (
++        <motion.div
++          initial={{ opacity: 0, y: 20 }}
++          animate={{ opacity: 1, y: 0 }}
++          exit={{ opacity: 0, y: 20 }}
++          className="fixed bottom-4 right-4 z-50 flex items-center gap-2 bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-full py-2 pl-4 pr-2 shadow-2xl"
++        >
++          <span className="text-xs font-medium text-zinc-400 flex items-center gap-1.5">
++            Made with 
++            <img src="/glyphor-logo-white.png" alt="Glyphor" className="h-3 w-auto opacity-90" />
++            Fuse
++          </span>
++          <button
++            onClick={handleClose}
++            className="p-1 hover:bg-zinc-800 rounded-full transition-colors text-zinc-500 hover:text-white"
++          >
++            <X size={14} />
++          </button>
++        </motion.div>
++      )}
++    </AnimatePresence>
++  );
++};
+\ No newline at end of file
+diff --git a/src/components/Hero.tsx b/src/components/Hero.tsx
+new file mode 100644
+index 0000000..e696bf6
+--- /dev/null
++++ b/src/components/Hero.tsx
+@@ -0,0 +1,86 @@
++import { motion, useScroll, useTransform } from 'framer-motion';
++import { useRef } from 'react';
++
++export const Hero = () => {
++  const containerRef = useRef<HTMLDivElement>(null);
++  const { scrollYProgress } = useScroll({
++    target: containerRef,
++    offset: ["start start", "end start"]
++  });
++
++  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
++  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
++
++  return (
++    <header ref={containerRef} className="relative h-screen w-full overflow-hidden bg-zinc-950 flex flex-col justify-end pb-24 px-6 md:px-12">
++      <motion.div 
++        style={{ y, opacity }}
++        className="absolute inset-0 z-0"
++      >
++        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-zinc-950/30 z-10" />
++        <div className="w-full h-full grayscale contrast-125 brightness-75">
++            {/* Using a dark, industrial coffee texture */}
++           <img 
++            src="<div className="relative">
++  <img 
++    src="https://images.pexels.com/photos/17680003/pexels-photo-17680003.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200" 
++    alt="A barista operates machinery at Starbucks Reserve Roastery, showcasing the coffee production process."
++    width="6000"
++    height="4000"
++    className="w-full h-full object-cover"
++  />
++  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent p-2">
++    <a href="https://www.pexels.com/photo/a-worker-operating-a-laptop-17680003/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-slate-300 transition-colors">
++      Photo by Declan Sun on Pexels
++    </a>
++  </div>
++</div>" 
++            alt="Roastery Interior" 
++            className="w-full h-full object-cover"
++           />
++        </div>
++      </motion.div>
++
++      <div className="relative z-10 max-w-7xl w-full mx-auto border-t border-zinc-800 pt-8">
++        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
++          <div className="md:col-span-8">
++            <motion.h1 
++              initial={{ opacity: 0, y: 100 }}
++              animate={{ opacity: 1, y: 0 }}
++              transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
++              className="text-7xl md:text-9xl font-bold tracking-tighter leading-[0.85] text-white mix-blend-difference"
++            >
++              FUEL FOR<br />THE GRIND
++            </motion.h1>
++          </div>
++          
++          <div className="md:col-span-4 flex flex-col justify-between h-full">
++            <motion.div 
++              initial={{ opacity: 0 }}
++              animate={{ opacity: 1 }}
++              transition={{ duration: 1, delay: 0.8 }}
++              className="hidden md:flex justify-end"
++            >
++              <div className="w-24 h-24 rounded-full border border-white/20 flex items-center justify-center animate-spin-slow">
++                <span className="text-[10px] font-mono">EST. 2024</span>
++              </div>
++            </motion.div>
++
++            <motion.p 
++              initial={{ opacity: 0 }}
++              animate={{ opacity: 1 }}
++              transition={{ duration: 1, delay: 0.6 }}
++              className="text-sm md:text-base text-zinc-400 max-w-xs font-mono self-end mt-8 md:mt-0"
++            >
++              // RAW MATERIALS
++              <br />
++              // PRECISION BREWING
++              <br />
++              // NO COMPROMISE
++            </motion.p>
++          </div>
++        </div>
++      </div>
++    </header>
++  );
++};
+\ No newline at end of file
+diff --git a/src/components/Menu.tsx b/src/components/Menu.tsx
+new file mode 100644
+index 0000000..bf9fed1
+--- /dev/null
++++ b/src/components/Menu.tsx
+@@ -0,0 +1,91 @@
++import { motion } from 'framer-motion';
++
++const DRINKS = [
++  { name: "DOPIO RISTRETTO", price: "3.5", desc: "Double shot, short extraction. The essence." },
++  { name: "FLAT WHITE", price: "4.2", desc: "Micro-foam, double shot. Velvet texture." },
++  { name: "BATCH BREW", price: "3.0", desc: "Single origin, precision filtered. Clean." },
++  { name: "COLD DRIP", price: "5.0", desc: "12 hour extraction. High caffeine, low acid." },
++  { name: "OAT CORTADO", price: "4.0", desc: "Oatly barista edition. Balanced." },
++];
++
++const PASTRIES = [
++  { name: "CARDAMOM KNOT", price: "4.5", desc: "Vegan. Sourdough base. Spicy." },
++  { name: "MISO COOKIE", price: "3.5", desc: "Dark chocolate chunks. Umami finish." },
++  { name: "BANANA BREAD", price: "4.0", desc: "Toasted, espresso butter. Dense." },
++];
++
++export const Menu = () => {
++  return (
++    <section id="menu" className="py-32 px-6 md:px-12 bg-zinc-950 text-zinc-50">
++      <div className="max-w-7xl mx-auto">
++        <div className="grid grid-cols-1 md:grid-cols-2 gap-24">
++          
++          {/* Drinks Column */}
++          <div>
++            <div className="flex items-baseline justify-between border-b border-zinc-800 pb-4 mb-12">
++              <h2 className="text-4xl font-bold tracking-tight">LIQUIDS</h2>
++              <span className="font-mono text-xs text-zinc-500">[CAFFEINE]</span>
++            </div>
++            
++            <div className="space-y-8">
++              {DRINKS.map((item, i) => (
++                <motion.div 
++                  initial={{ opacity: 0, y: 20 }}
++                  whileInView={{ opacity: 1, y: 0 }}
++                  viewport={{ once: true }}
++                  transition={{ delay: i * 0.1 }}
++                  key={item.name} 
++                  className="group cursor-pointer"
++                >
++                  <div className="flex justify-between items-baseline mb-1">
++                    <h3 className="text-xl font-medium tracking-wide group-hover:text-zinc-400 transition-colors">{item.name}</h3>
++                    <span className="font-mono text-sm text-zinc-500">{item.price}</span>
++                  </div>
++                  <p className="text-sm text-zinc-500 font-mono opacity-0 h-0 group-hover:opacity-100 group-hover:h-auto transition-all duration-300 overflow-hidden">
++                    {`// ${item.desc}`}
++                  </p>
++                </motion.div>
++              ))}
++            </div>
++          </div>
++
++          {/* Pastries Column */}
++          <div className="pt-12 md:pt-32">
++             <div className="flex items-baseline justify-between border-b border-zinc-800 pb-4 mb-12">
++              <h2 className="text-4xl font-bold tracking-tight">SOLIDS</h2>
++              <span className="font-mono text-xs text-zinc-500">[SUSTENANCE]</span>
++            </div>
++            
++            <div className="space-y-8">
++              {PASTRIES.map((item, i) => (
++                <motion.div 
++                  initial={{ opacity: 0, y: 20 }}
++                  whileInView={{ opacity: 1, y: 0 }}
++                  viewport={{ once: true }}
++                  transition={{ delay: i * 0.1 }}
++                  key={item.name} 
++                  className="group cursor-pointer"
++                >
++                  <div className="flex justify-between items-baseline mb-1">
++                    <h3 className="text-xl font-medium tracking-wide group-hover:text-zinc-400 transition-colors">{item.name}</h3>
++                    <span className="font-mono text-sm text-zinc-500">{item.price}</span>
++                  </div>
++                  <p className="text-sm text-zinc-500 font-mono opacity-0 h-0 group-hover:opacity-100 group-hover:h-auto transition-all duration-300 overflow-hidden">
++                    {`// ${item.desc}`}
++                  </p>
++                </motion.div>
++              ))}
++            </div>
++
++            <div className="mt-24 p-6 border border-zinc-800 bg-zinc-900/30">
++                <p className="font-mono text-xs text-zinc-400 leading-relaxed uppercase">
++                    Our beans are sourced directly from sustainable micro-lots. Roasted weekly in Berlin-Kreuzberg. All pastries are 100% plant-based.
++                </p>
++            </div>
++          </div>
++
++        </div>
++      </div>
++    </section>
++  );
++};
+\ No newline at end of file
+diff --git a/src/components/Navbar.tsx b/src/components/Navbar.tsx
+new file mode 100644
+index 0000000..98d7059
+--- /dev/null
++++ b/src/components/Navbar.tsx
+@@ -0,0 +1,39 @@
++import { motion } from 'framer-motion';
++import { Menu } from 'lucide-react';
++
++export const Navbar = () => {
++  return (
++    <motion.nav 
++      initial={{ y: -100 }}
++      animate={{ y: 0 }}
++      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
++      className="fixed top-0 left-0 w-full z-40 px-6 py-6 flex justify-between items-start mix-blend-exclusion text-white pointer-events-none"
++    >
++      <div className="flex flex-col pointer-events-auto">
++        <span className="text-xl font-bold tracking-tighter leading-none">WERKSTOFF</span>
++        <span className="text-[10px] font-mono opacity-60 tracking-widest mt-1">BERLIN / MITTE</span>
++      </div>
++
++      <div className="hidden md:flex gap-8 font-mono text-xs tracking-widest pointer-events-auto">
++        {['ROAST', 'MENU', 'SPACE', 'VISIT'].map((item, i) => (
++          <a 
++            key={item} 
++            href={`#${item.toLowerCase()}`}
++            className="relative group overflow-hidden"
++          >
++            <span className="block transition-transform duration-300 group-hover:-translate-y-full">
++              {`0${i + 1} // ${item}`}
++            </span>
++            <span className="absolute top-0 left-0 block translate-y-full transition-transform duration-300 group-hover:translate-y-0 text-zinc-400">
++              {`0${i + 1} // ${item}`}
++            </span>
++          </a>
++        ))}
++      </div>
++
++      <button className="md:hidden pointer-events-auto">
++        <Menu className="w-6 h-6" />
++      </button>
++    </motion.nav>
++  );
++};
+\ No newline at end of file
+diff --git a/src/components/Space.tsx b/src/components/Space.tsx
+new file mode 100644
+index 0000000..b93e34a
+--- /dev/null
++++ b/src/components/Space.tsx
+@@ -0,0 +1,107 @@
++import { motion, useScroll, useTransform } from 'framer-motion';
++import { useRef } from 'react';
++
++export const Space = () => {
++  const ref = useRef(null);
++  const { scrollYProgress } = useScroll({
++    target: ref,
++    offset: ["start end", "end start"]
++  });
++
++  const y1 = useTransform(scrollYProgress, [0, 1], [0, -100]);
++  const y2 = useTransform(scrollYProgress, [0, 1], [0, 100]);
++
++  return (
++    <section id="space" ref={ref} className="py-24 bg-zinc-100 text-zinc-950 overflow-hidden">
++      <div className="px-6 md:px-12 max-w-7xl mx-auto">
++        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-24 border-b border-zinc-300 pb-8">
++          <h2 className="text-6xl md:text-8xl font-bold tracking-tighter">THE LAB</h2>
++          <p className="font-mono text-sm mt-4 md:mt-0 max-w-xs uppercase">
++            Designed for focus. Stripped back to the essentials. Concrete, Steel, Light.
++          </p>
++        </div>
++
++        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 h-[120vh]">
++          <motion.div style={{ y: y1 }} className="h-full w-full flex flex-col gap-8 pt-12">
++            <div className="h-[60%] w-full bg-zinc-300 overflow-hidden">
++               <img src="<div className="relative">
++  <img 
++    src="https://images.pexels.com/photos/33251467/pexels-photo-33251467.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800" 
++    alt="A modern, minimalist cafe interior featuring wooden furniture and potted plants."
++    width="3000"
++    height="4000"
++    className="w-full h-full object-cover"
++  />
++  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent p-2">
++    <a href="https://www.pexels.com/photo/minimalist-cafe-interior-with-wooden-furniture-33251467/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-slate-300 transition-colors">
++      Photo by Sapol Churanon on Pexels
++    </a>
++  </div>
++</div>" className="w-full h-full object-cover" alt="Interior 1" />
++            </div>
++            <div className="font-mono text-xs p-4 border border-zinc-300">
++                LOC: BERLIN<br/>LAT: 52.5200° N<br/>LON: 13.4050° E
++            </div>
++          </motion.div>
++
++          <div className="h-full w-full flex flex-col gap-8 justify-center">
++             <div className="h-[50%] w-full bg-zinc-300 overflow-hidden">
++                <img src="<div className="relative">
++  <img 
++    src="https://images.pexels.com/photos/5689498/pexels-photo-5689498.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800" 
++    alt="Barista creates intricate latte art in a coffee cup using a red pitcher for a delicious presentation."
++    width="3512"
++    height="4917"
++    className="w-full h-full object-cover"
++  />
++  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent p-2">
++    <a href="https://www.pexels.com/photo/latte-art-on-brown-coffee-foam-5689498/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-slate-300 transition-colors">
++      Photo by Daniel Tello on Pexels
++    </a>
++  </div>
++</div>" className="w-full h-full object-cover" alt="Barista Action" />
++             </div>
++             <p className="text-2xl font-bold tracking-tight leading-none indent-8">
++                "WE BELIEVE IN THE PURITY OF THE PROCESS. NO DISTRACTIONS."
++             </p>
++          </div>
++
++          <motion.div style={{ y: y2 }} className="h-full w-full flex flex-col gap-8 pb-12">
++            <div className="h-[40%] w-full bg-zinc-300 overflow-hidden">
++                <img src="<div className="relative">
++  <img 
++    src="https://images.pexels.com/photos/34645485/pexels-photo-34645485.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800" 
++    alt="Detailed view of an espresso machine's portafilter and controls, perfect for coffee enthusiasts."
++    width="4000"
++    height="6000"
++    className="w-full h-full object-cover"
++  />
++  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent p-2">
++    <a href="https://www.pexels.com/photo/close-up-of-a-professional-espresso-machine-34645485/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-slate-300 transition-colors">
++      Photo by Peter Xie on Pexels
++    </a>
++  </div>
++</div>" className="w-full h-full object-cover" alt="Machine Detail" />
++            </div>
++             <div className="h-[40%] w-full bg-zinc-300 overflow-hidden">
++                <img src="<div className="relative">
++  <img 
++    src="https://images.pexels.com/photos/4063792/pexels-photo-4063792.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800" 
++    alt="Two women collaborating on a project in a cozy café setting."
++    width="3333"
++    height="5000"
++    className="w-full h-full object-cover"
++  />
++  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent p-2">
++    <a href="https://www.pexels.com/photo/woman-in-pink-blazer-sitting-beside-woman-in-brown-blazer-4063792/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-slate-300 transition-colors">
++      Photo by Marcus Aurelius on Pexels
++    </a>
++  </div>
++</div>" className="w-full h-full object-cover" alt="Vibe" />
++            </div>
++          </motion.div>
++        </div>
++      </div>
++    </section>
++  );
++};
+\ No newline at end of file
+diff --git a/src/index.css b/src/index.css
+index 444f889..6055952 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -1,70 +1,47 @@
+ @import "tailwindcss";
+ 
+ :root {
+-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
++  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+   line-height: 1.5;
+   font-weight: 400;
+-
+-  color-scheme: light dark;
+-  color: rgba(255, 255, 255, 0.87);
+-  background-color: #242424;
+-
+-  font-synthesis: none;
+-  text-rendering: optimizeLegibility;
+-  -webkit-font-smoothing: antialiased;
+-  -moz-osx-font-smoothing: grayscale;
+-}
+-
+-a {
+-  font-weight: 500;
+-  color: #646cff;
+-  text-decoration: inherit;
+-}
+-a:hover {
+-  color: #535bf2;
++  color-scheme: dark;
++  background-color: #09090b; /* zinc-950 */
++  color: #fafafa; /* zinc-50 */
+ }
+ 
+ body {
+   margin: 0;
+-  display: flex;
+-  place-items: center;
+   min-width: 320px;
+   min-height: 100vh;
++  overflow-x: hidden;
++  -webkit-font-smoothing: antialiased;
++  -moz-osx-font-smoothing: grayscale;
+ }
+ 
+-h1 {
+-  font-size: 3.2em;
+-  line-height: 1.1;
++::selection {
++  background-color: #fafafa;
++  color: #09090b;
+ }
+ 
+-button {
+-  border-radius: 8px;
+-  border: 1px solid transparent;
+-  padding: 0.6em 1.2em;
+-  font-size: 1em;
+-  font-weight: 500;
+-  font-family: inherit;
+-  background-color: #1a1a1a;
+-  cursor: pointer;
+-  transition: border-color 0.25s;
++/* Custom Scrollbar */
++::-webkit-scrollbar {
++  width: 6px;
++}
++::-webkit-scrollbar-track {
++  background: #09090b;
+ }
+-button:hover {
+-  border-color: #646cff;
++::-webkit-scrollbar-thumb {
++  background: #27272a;
+ }
+-button:focus,
+-button:focus-visible {
+-  outline: 4px auto -webkit-focus-ring-color;
++::-webkit-scrollbar-thumb:hover {
++  background: #3f3f46;
+ }
+ 
+-@media (prefers-color-scheme: light) {
+-  :root {
+-    color: #213547;
+-    background-color: #ffffff;
+-  }
+-  a:hover {
+-    color: #747bff;
+-  }
+-  button {
+-    background-color: #f9f9f9;
+-  }
++/* Utility for hiding scrollbar but keeping functionality */
++.no-scrollbar::-webkit-scrollbar {
++  display: none;
+ }
++.no-scrollbar {
++  -ms-overflow-style: none;
++  scrollbar-width: none;
++}
+\ No newline at end of file
+diff --git a/src/pages/Index.tsx b/src/pages/Index.tsx
+new file mode 100644
+index 0000000..2833a3e
+--- /dev/null
++++ b/src/pages/Index.tsx
+@@ -0,0 +1,106 @@
++import { Hero } from '../components/Hero';
++import { Navbar } from '../components/Navbar';
++import { Menu } from '../components/Menu';
++import { Space } from '../components/Space';
++import { motion } from 'framer-motion';
++import { ArrowRight, MapPin, Clock, Mail } from 'lucide-react';
++
++const Footer = () => (
++  <footer id="visit" className="bg-zinc-950 text-zinc-50 pt-24 pb-12 px-6 md:px-12 border-t border-zinc-800">
++    <div className="max-w-7xl mx-auto">
++      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-24">
++        
++        <div className="space-y-4">
++          <h3 className="font-bold text-xl mb-6 flex items-center gap-2">
++            <MapPin className="w-5 h-5" /> VISIT US
++          </h3>
++          <p className="font-mono text-sm text-zinc-400">
++            Torstraße 102<br />
++            10119 Berlin<br />
++            Germany
++          </p>
++          <a href="#" className="inline-flex items-center gap-2 text-xs font-mono border-b border-transparent hover:border-white transition-colors mt-2">
++            GET DIRECTIONS <ArrowRight className="w-3 h-3" />
++          </a>
++        </div>
++
++        <div className="space-y-4">
++          <h3 className="font-bold text-xl mb-6 flex items-center gap-2">
++            <Clock className="w-5 h-5" /> HOURS
++          </h3>
++          <ul className="font-mono text-sm text-zinc-400 space-y-2">
++            <li className="flex justify-between w-32"><span>MON-FRI</span> <span>07-18</span></li>
++            <li className="flex justify-between w-32"><span>SAT-SUN</span> <span>09-17</span></li>
++          </ul>
++        </div>
++
++        <div className="space-y-4">
++          <h3 className="font-bold text-xl mb-6 flex items-center gap-2">
++            <Mail className="w-5 h-5" /> CONTACT
++          </h3>
++          <p className="font-mono text-sm text-zinc-400">
++            hello@werkstoff.de<br />
++            +49 30 12345678
++          </p>
++          <div className="flex gap-4 mt-4">
++             {/* Social placeholders */}
++             <a href="#" className="w-8 h-8 border border-zinc-700 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">IG</a>
++             <a href="#" className="w-8 h-8 border border-zinc-700 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">FB</a>
++          </div>
++        </div>
++
++        <div className="space-y-4">
++           <h3 className="font-bold text-xl mb-6">NEWSLETTER</h3>
++           <form className="flex flex-col gap-2">
++             <input 
++               type="email" 
++               placeholder="EMAIL ADDRESS" 
++               className="bg-transparent border-b border-zinc-700 py-2 text-sm font-mono focus:outline-none focus:border-white transition-colors placeholder:text-zinc-600"
++             />
++             <button className="self-start text-xs font-bold mt-2 hover:text-zinc-400 transition-colors">SUBSCRIBE</button>
++           </form>
++        </div>
++      </div>
++
++      <div className="flex flex-col md:flex-row justify-between items-end border-t border-zinc-900 pt-8">
++        <h1 className="text-[12vw] leading-[0.8] font-bold tracking-tighter text-zinc-900 select-none pointer-events-none">
++          WERKSTOFF
++        </h1>
++        <div className="flex gap-8 text-[10px] font-mono text-zinc-600 mb-2 md:mb-6">
++          <span>© 2024 WERKSTOFF BERLIN</span>
++          <span>IMPRESSUM</span>
++          <span>DATENSCHUTZ</span>
++        </div>
++      </div>
++    </div>
++  </footer>
++);
++
++const Index = () => {
++  return (
++    <div className="bg-zinc-950 min-h-screen">
++      <Navbar />
++      <Hero />
++      
++      {/* Manifesto Section */}
++      <section className="py-24 px-6 md:px-12 border-b border-zinc-800">
++        <div className="max-w-4xl mx-auto text-center">
++          <motion.p 
++            initial={{ opacity: 0, y: 20 }}
++            whileInView={{ opacity: 1, y: 0 }}
++            viewport={{ once: true, margin: "-100px" }}
++            className="text-2xl md:text-4xl font-light leading-relaxed text-zinc-300"
++          >
++            "We strip away the unnecessary. Coffee is not a beverage; it is a ritual of precision. In the chaos of the city, we provide the fuel to keep moving."
++          </motion.p>
++        </div>
++      </section>
++
++      <Menu />
++      <Space />
++      <Footer />
++    </div>
++  );
++};
++
++export default Index;
+\ No newline at end of file
